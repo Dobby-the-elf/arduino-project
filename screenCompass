@@ -1,0 +1,219 @@
+// IMPORTANT: LCDWIKI_SPI LIBRARY MUST BE SPECIFICALLY
+//copied by "display_graphics" directory (in Hardware SPI)
+
+//----------- by Dobby ------------
+//Pixel: 176*220(4:5)(mid=88,110)
+//Draw_Pixe(x, y, draw_color); 
+//setCursor(x,y);
+//try to use "Hardware SPI", it's faster
+//----------注意腳位!------------
+//Harware SPI pin: replace 
+//A0->NULL
+//A1->13
+//A2->11
+//A3->10
+//A4->9
+//A5->8
+
+
+//-----------for compass------------
+//Vcc for Vcc
+//GND gor GND
+//SCL for A5
+//SDA for A4
+
+//#include <SPI.h>
+#include <LCDWIKI_GUI.h> //Core graphics library
+#include <LCDWIKI_SPI.h> //Hardware-specific library
+#include <math.h>
+#include <Wire.h>
+#define HMC5803L_Address 0x1E
+#define X 3
+#define Y 7
+#define Z 5
+
+//----------for screen--------------
+#define swap(a, b) { int16_t t = a; a = b; b = t; }
+#define MODEL ILI9225
+/*
+#define CS   A5    
+#define CD   A3
+#define RST  A4
+*/
+#define CS   10   
+#define CD   8
+#define RST  9
+#define LED  0   //if you don't need to control the LED pin,you should set it to -1 and set it to 3.3V
+
+//the definiens of hardware spi mode as follow:
+LCDWIKI_SPI mylcd(MODEL,CS,CD,RST,LED); //model,cs,dc,reset,led
+
+#define  BLACK   0x0000
+#define BLUE    0x001F
+#define RED     0xF800
+#define GREEN   0x07E0
+#define CYAN    0x07FF
+#define MAGENTA 0xF81F
+#define YELLOW  0xFFE0
+#define WHITE   0xFFFF
+#define r1 27
+#define r2 54
+#define r3 81
+
+void Init_HMC5803L(void)
+{
+  /* Set the module to 8x averaging and 15Hz measurement rate */
+  Wire.beginTransmission(HMC5803L_Address);
+  Wire.write(0x00);
+  Wire.write(0x70);
+         
+  /* Set a gain of 5 */
+  Wire.write(0x01);
+  Wire.write(0xA0);
+  Wire.endTransmission();
+}
+
+
+/* This function will read once from one of the 3 axis data registers
+and return the 16 bit signed result. */
+int HMC5803L_Read(byte Axis)
+{
+  int Result;
+
+  /* Initiate a single measurement */
+  Wire.beginTransmission(HMC5803L_Address);
+  Wire.write(0x02);
+  Wire.write(0x01);
+  Wire.endTransmission();
+  delay(6);
+
+  /* Move modules the resiger pointer to one of the axis data registers */
+  Wire.beginTransmission(HMC5803L_Address);
+  Wire.write(Axis);
+  Wire.endTransmission();
+ 
+  /* Read the data from registers (there are two 8 bit registers for each axis) */
+  Wire.requestFrom(HMC5803L_Address, 2);
+  Result = Wire.read() << 8;
+  Result |= Wire.read();
+
+  return Result;
+}
+
+
+int home_x=0;
+int home_y=0;
+int breathe=0;
+bool b_state=0;
+int x;
+float heading;
+//float headingDegrees;
+
+void Too_Far();
+void Set_Rader();
+void Init_Rader();
+
+void Print_Direction(float deg){
+  /*mylcd.Fill_Screen(BLACK);
+  mylcd.Set_Rotation(dir);
+  mylcd.Fill_Rectangle(-3+0.5*mylcd.Get_Display_Width(), mylcd.Get_Display_Height()-20, 3+0.5*mylcd.Get_Display_Width(), 75);
+  mylcd.Fill_Triangle(-15+0.5*mylcd.Get_Display_Width(), mylcd.Get_Display_Height()-25,0.5*mylcd.Get_Display_Width(), mylcd.Get_Display_Height()-1,15+0.5*mylcd.Get_Display_Width(), mylcd.Get_Display_Height()-25);
+  */
+
+  //-----------for screen------------
+  breathe++;
+  mylcd.Set_Draw_color(breathe<<13);
+  mylcd.Fill_Circle(88+home_x*cos(heading)+home_y*sin(heading),110-home_x*sin(heading)+home_y*cos(heading),3);
+  
+  mylcd.Set_Draw_color(GREEN);
+  mylcd.Draw_Line(88,110,88+79*cos(deg),110+79*sin(deg)); 
+  
+  mylcd.Set_Draw_color(BLACK);
+  mylcd.Fill_Circle(88+home_x*cos(heading)+home_y*sin(heading),110-home_x*sin(heading)+home_y*cos(heading),3);
+  
+  //-----------for compass------------
+  heading = atan2(HMC5803L_Read(Y), HMC5803L_Read(X));
+  float declinationAngle = 0.0404;
+  heading += declinationAngle;
+  if(heading < 0)heading += 2*PI;
+  if(heading > 2*PI)heading -= 2*PI;
+  //headingDegrees = heading * 180/M_PI; 
+  //Serial.println(heading);
+  
+  //----------------------------------
+  mylcd.Set_Draw_color(BLACK);
+  //Draw_Line_Safe(88,110,88+80*cos(deg),110+80*sin(deg)); 
+  mylcd.Draw_Line(88,110,88+79*cos(deg),110+79*sin(deg)); 
+
+  /*
+  mylcd.Set_Draw_color(GREEN);
+  if(deg>3.14/4 && deg<3.14*5.2/4){
+    mylcd.Draw_Pixel(88+round(27.*cos(deg)),110+round(27.*sin(deg)));
+    mylcd.Draw_Pixel(88+round(54.*cos(deg)),110+round(54.*sin(deg)));
+  }
+  else{
+    mylcd.Draw_Pixel(88+27*cos(deg),110+27*sin(deg));
+    mylcd.Draw_Pixel(88+54.*cos(deg),110+54.*sin(deg));
+  }
+  */
+}
+
+
+void setup(){
+  //-----for compass-------
+  Serial.begin(9600);
+  /* Initialise the Wire library */
+  Wire.begin();
+  /* Initialise the module */
+  Init_HMC5803L();
+  
+  //-----for screen-------
+  home_x=23;
+  home_y=26;
+  mylcd.Init_LCD();
+  mylcd.Fill_Screen(BLACK);
+  Init_Rader();
+  //SPI.setClockDivider(SPI_CLOCK_DIV8);
+}
+
+
+void loop(){ 
+  for(int deg=1; deg<360; deg+=10){
+    //-----for screen-------
+    Print_Direction(float(deg)/57.296);
+    //Serial.println(round(27*cos(float(deg)/57.3)));
+    
+  }
+}
+
+
+void Too_Far(){//可能會需要Timer.h
+  for(int i=0;i<6;i++){
+    mylcd.Set_Text_Back_colour(RED);
+    mylcd.Set_Text_Size(4);
+    mylcd.Set_Text_colour(BLACK);
+    mylcd.Print_String("Too far", 0, 190);
+    mylcd.Set_Text_Back_colour(BLACK);
+    mylcd.Print_String("Too far", 0, 190);
+  }
+}
+
+void Init_Rader(){
+  mylcd.Set_Text_Back_colour(BLACK);
+  mylcd.Set_Text_Size(3);
+  mylcd.Set_Text_colour(WHITE);
+  mylcd.Print_String("Home", 3, 3);
+  mylcd.Set_Draw_color(GREEN);
+  mylcd.Draw_Line(88,110+67,88,110+87); 
+  mylcd.Draw_Line(88+67,110,88+87,110);
+  mylcd.Draw_Line(88,110-87,88,110-67); 
+  mylcd.Draw_Line(88-87,110,88-67,110);
+  mylcd.Draw_Circle(88,110,r1);
+  mylcd.Draw_Circle(88,110,r2);
+  mylcd.Draw_Circle(88,110,r3);
+}
+
+void Set_Rader(){
+  mylcd.Draw_Circle(88,110,r1);
+  mylcd.Draw_Circle(88,110,r2);
+}
