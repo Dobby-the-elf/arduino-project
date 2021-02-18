@@ -111,7 +111,7 @@ Youtube CAT [https://www.youtube.com/results?search_query=2.2''+sku+mar2201+proj
 
 [https://github.com/ZinggJM/TFT_22_ILI9225](https://github.com/ZinggJM/TFT_22_ILI9225)
 
-choose
+and we uses
 
 [https://github.com/Nkawu/TFT_22_ILI9225](https://github.com/Nkawu/TFT_22_ILI9225)
 
