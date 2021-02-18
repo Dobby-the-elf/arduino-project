@@ -1,3 +1,6 @@
+### You may implement this project by using "all_att3.5.6.ino" & "bitmap1.h"
+### Hardware requirement can be found in the following part (Component we uses).  
+&nbsp;
 # arduino-project
 An arduino project for helping people with Dementia to get back home.
 # 單晶片專案－防走失裝置
@@ -10,12 +13,12 @@ An arduino project for helping people with Dementia to get back home.
 
 ## 使用元件 Component we uses
 1. Arduino mega 2560
-2. 無源蜂鳴器：
+2. 無源蜂鳴器(buzzer)：
 3. [Wifi（ESP8266)](https://shopee.tw/shop/78246604/item/1384303983/rating)
 4. [指南針 gy273](https://www.taiwaniot.com.tw/product/gy-273-hmc5883l-%E6%A8%A1%E7%B5%84-%E9%9B%BB%E5%AD%90%E6%8C%87%E5%8D%97%E9%87%9D%E7%BE%85%E7%9B%A4%E6%A8%A1%E7%B5%84-%E4%B8%89%E8%BB%B8%E7%A3%81%E5%A0%B4%E6%84%9F%E6%B8%AC%E5%99%A8/)
 5. [TFT(ILI9225) LCD顯示器](http://www.lcdwiki.com/2.2inch_Arduino_SPI_Module_ILI9225_SKU:MAR2201)
 6. [遊戲搖桿傳感器](https://www.pchomeus.com/item/show?30203662442877)
-7. [PCB board of Mega(maybe)](https://store.arduino.cc/usa/arduino-mega-proto-shield-rev3-pcb)
+7. [PCB board of Mega(optional)](https://store.arduino.cc/usa/arduino-mega-proto-shield-rev3-pcb)
 ## Softwares
 1.  WIFI 定位([Google Geolocation API](https://developers.google.com/maps/documentation/geolocation/overview))
 2.  ioT MQTT Broker (將wifi抓到的經緯度位址上傳到sever，供家屬端存取)
