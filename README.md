@@ -88,15 +88,6 @@ Youtube CAT [https://www.youtube.com/results?search_query=2.2''+sku+mar2201+proj
 [https://pinetools.com/split-image](https://pinetools.com/split-image)
 
 
-### RGB 565
-
-![About%20Arduino%20project%202bcc5130efa5408d8032f18702602c34/_2020-11-29_3.23.13.png](About%20Arduino%20project%202bcc5130efa5408d8032f18702602c34/_2020-11-29_3.23.13.png)
-
-
-### compare to RGB 888
-
-![About%20Arduino%20project%202bcc5130efa5408d8032f18702602c34/_2020-11-29_3.23.41.png](About%20Arduino%20project%202bcc5130efa5408d8032f18702602c34/_2020-11-29_3.23.41.png)
-
 
 ### color converter
 
