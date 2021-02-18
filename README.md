@@ -1,4 +1,4 @@
-### You may implement this project by using "all_att3.5.6.ino" & "bitmap1.h" only
+### You may implement this project by using "all_att3.5.6.ino" & "bitmap1.h"
 (put them into same folder named "all_att3.5.6")
 ### Hardware requirement can be found in the following part (Component we uses).  
 &nbsp;
